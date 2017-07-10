@@ -117,7 +117,7 @@ msgstr ""
 #: includes/bp-activity.php:53
 #, php-format
 msgid "%1$s earned the %2$s: %3$s"
-msgstr ""
+msgstr "%1$s a obtenu le %2$s: %3$s"
 
 #: includes/bp-activity.php:103
 msgid "BuddyPress Member Activity"
