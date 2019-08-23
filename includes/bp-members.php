@@ -56,7 +56,8 @@ function badgeos_bp_member_achievements_content() {
 		'user_id'     => bp_displayed_user_id(),
 		'wpms'        => badgeos_ms_show_all_achievements(),
 	);
-	echo badgeos_achievements_list_shortcode( $atts );
+	
+	echo apply_filters( 'bp_badgeos_community_achivements', badgeos_achievements_list_shortcode( $atts ) );
 }
 
 /**
@@ -111,6 +112,17 @@ function badgeos_bp_core_general_settings_after_save() {
 }
 add_action( 'bp_core_general_settings_after_save', 'badgeos_bp_core_general_settings_after_save' );
 
+/**
+ * handel progress map for achievements
+ */
+function badgeos_bp_achievement_progress_map() {
+	add_action( 'bp_template_content', 'badgeos_bp_achievement_progress_map_content' );
+	bp_core_load_template( apply_filters( 'badgeos_bp_member_achievements', 'members/single/plugins' ) );
+}
+
+function badgeos_bp_achievement_progress_map_content() {
+	echo do_shortcode('[badgeos_achievements_interactive_progress_map limit="10" status="all"]');
+}
 
 /**
  * Build BP_Component extension object
@@ -228,6 +240,22 @@ class BadgeOS_Community_Members extends BP_Component {
 				'position'        => 10,
 			);
 		}
+
+		$settings = ( $exists = get_option( 'badgeos_settings' ) ) ? $exists : array();
+		if( isset( $settings['badgeos_bp_inp_tab'] ) && !empty( $settings['badgeos_bp_inp_tab'] ) ) {
+			$badgeos_bp_inp_tab = trim( $settings['badgeos_bp_inp_tab'] );
+			if( $badgeos_bp_inp_tab=='yes' && class_exists('BadgeOS_Interactive_Progress_Map') ) {
+				$sub_nav[] = array(
+					'name'            => __( 'Progress Map', 'badgeos-community' ),
+					'slug'            => 'progress-map',
+					'parent_url'      => $parent_url,
+					'parent_slug'     => $this->slug,
+					'screen_function' => 'badgeos_bp_achievement_progress_map',
+					'position'        => 10,
+				);
+			}
+		}
+		
 
 		parent::setup_nav( $main_nav, $sub_nav );
 	}

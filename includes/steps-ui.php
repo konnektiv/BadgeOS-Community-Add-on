@@ -9,7 +9,7 @@
  * @link https://credly.com
  */
 
-/**
+/** 
  * Update badgeos_get_step_requirements to include our custom requirements
  *
  * @since  1.0.0
@@ -21,7 +21,7 @@ function badgeos_bp_step_requirements( $requirements, $step_id ) {
 	// Add our new requirements to the list
 	$requirements['community_trigger'] = get_post_meta( $step_id, '_badgeos_community_trigger', true );
 	$requirements['group_id'] = get_post_meta( $step_id, '_badgeos_group_id', true );
-
+	$requirements['private_group_id'] = get_post_meta( $step_id, '_badgeos_private_group_id', true );
 	// Return the requirements array
 	return $requirements;
 }
@@ -39,6 +39,9 @@ function badgeos_bp_activity_triggers( $triggers ) {
 	return $triggers;
 }
 add_filter( 'badgeos_activity_triggers', 'badgeos_bp_activity_triggers' );
+add_filter( 'badgeos_award_points_activity_triggers', 'badgeos_bp_activity_triggers' );
+add_filter( 'badgeos_deduct_points_activity_triggers', 'badgeos_bp_activity_triggers' );
+add_filter( 'badgeos_ranks_req_activity_triggers', 'badgeos_bp_activity_triggers' );
 
 /**
  * Add a Community Triggers selector to the Steps UI
@@ -70,6 +73,9 @@ function badgeos_bp_step_community_trigger_select( $step_id, $post_id ) {
 
 }
 add_action( 'badgeos_steps_ui_html_after_trigger_type', 'badgeos_bp_step_community_trigger_select', 10, 2 );
+add_action( 'badgeos_award_steps_ui_html_after_achievement_type', 'badgeos_bp_step_community_trigger_select', 10, 2 );
+add_action( 'badgeos_deduct_steps_ui_html_after_trigger_type', 'badgeos_bp_step_community_trigger_select', 10, 2 );
+add_action( 'badgeos_rank_req_steps_ui_html_after_trigger_type', 'badgeos_bp_step_community_trigger_select', 10, 2 );
 
 /**
  * Add a BuddyPress group selector to the Steps UI
@@ -81,7 +87,7 @@ add_action( 'badgeos_steps_ui_html_after_trigger_type', 'badgeos_bp_step_communi
 function badgeos_bp_step_group_select( $step_id, $post_id ) {
 
 	// Setup our select input
-	echo '<select name="group_id" class="select-group-id select-group-id-' . $post_id . '">';
+	echo '<select name="group_id" class="select-bp-group-id select-bp-group-id-' . $post_id . '">';
 	echo '<option value="">' . __( 'Select a Group', 'badgeos-community' ) . '</option>';
 
 	// Loop through all existing BP groups and include them here
@@ -90,7 +96,8 @@ function badgeos_bp_step_group_select( $step_id, $post_id ) {
 		$bp_groups = groups_get_groups( array( 'show_hidden' => true, 'per_page' => 300 ) );
 		if ( !empty( $bp_groups ) ) {
 			foreach ( $bp_groups['groups'] as $group ) {
-				echo '<option' . selected( $current_selection, $group->id, false ) . ' value="' . $group->id . '">' . $group->name . '</option>';
+				if( $group->status!='private' )
+					echo '<option' . selected( $current_selection, $group->id, false ) . ' value="' . $group->id . '">' . $group->name . '</option>';
 			}
 		}
 	}
@@ -98,7 +105,40 @@ function badgeos_bp_step_group_select( $step_id, $post_id ) {
 
 }
 add_action( 'badgeos_steps_ui_html_after_trigger_type', 'badgeos_bp_step_group_select', 10, 2 );
+add_action( 'badgeos_award_steps_ui_html_after_achievement_type', 'badgeos_bp_step_group_select', 10, 2 );
+add_action( 'badgeos_deduct_steps_ui_html_after_trigger_type', 'badgeos_bp_step_group_select', 10, 2 );
+add_action( 'badgeos_rank_req_steps_ui_html_after_trigger_type', 'badgeos_bp_step_group_select', 10, 2 );
+/**
+ * Add a BuddyPress private group selector to the Steps UI
+ *
+ * @since 1.0.0
+ * @param integer $step_id The given step's post ID
+ * @param integer $post_id The given parent post's post ID
+ */
+function badgeos_bp_step_private_group_select( $step_id, $post_id ) {
 
+	// Setup our select input
+	echo '<select name="group_id" class="select-bp-private-group-id select-bp-private-group-id-' . $post_id . '">';
+	echo '<option value="">' . __( 'Select a Private Group', 'badgeos-community' ) . '</option>';
+
+	// Loop through all existing BP groups and include them here
+	if ( function_exists( 'bp_is_active' ) && bp_is_active( 'groups' ) ) {
+		$current_selection = get_post_meta( $step_id, '_badgeos_private_group_id', true );
+		$bp_groups = groups_get_groups( array( 'show_hidden' => true, 'per_page' => 300 ) );
+		if ( !empty( $bp_groups ) ) {
+			foreach ( $bp_groups['groups'] as $group ) {
+				if( $group->status=='private' )
+				echo '<option' . selected( $current_selection, $group->id, false ) . ' value="' . $group->id . '">' . $group->name . '</option>';
+			}
+		}
+	}
+	echo '</select>';
+
+}
+add_action( 'badgeos_steps_ui_html_after_trigger_type', 'badgeos_bp_step_private_group_select', 10, 2 );
+add_action( 'badgeos_award_steps_ui_html_after_achievement_type', 'badgeos_bp_step_private_group_select', 10, 2 );
+add_action( 'badgeos_deduct_steps_ui_html_after_trigger_type', 'badgeos_bp_step_private_group_select', 10, 2 );
+add_action( 'badgeos_rank_req_steps_ui_html_after_trigger_type', 'badgeos_bp_step_private_group_select', 10, 2 );
 /**
  * AJAX Handler for saving all steps
  *
@@ -128,6 +168,18 @@ function badgeos_bp_save_step( $title, $step_id, $step_data ) {
 			// Pass along our custom post title
 			$title = sprintf( __( 'Join group "%s"', 'badgeos-community' ), bp_get_group_name( groups_get_group( array( 'group_id' => $step_data['group_id'] ) ) ) );
 		}
+
+		// If we're looking to join a specific group...
+		if ( 'get_accepted_on_specific_private_group' == $step_data['community_trigger'] && function_exists( 'bp_get_group_name' ) ) {
+
+			// Store our group ID in meta
+			update_post_meta( $step_id, '_badgeos_private_group_id', $step_data['private_group_id'] );
+
+			// Pass along our custom post title
+			$title = sprintf( __( 'Join private group "%s"', 'badgeos-community' ), bp_get_group_name( groups_get_group( array( 'group_id' => $step_data['private_group_id'] ) ) ) );
+		}
+
+		
 	}
 
 	// Send back our custom title
@@ -154,8 +206,9 @@ function badgeos_bp_step_js() { ?>
 				trigger_type.siblings('.select-community-trigger').show().change();
 			} else {
 				trigger_type.siblings('.select-community-trigger').hide().change();
+				trigger_type.siblings('.select-bp-group-id').hide();
+				trigger_type.siblings('.select-bp-private-group-id').hide();
 			}
-
 		});
 
 		// Listen for our change to our trigger type selector
@@ -165,11 +218,16 @@ function badgeos_bp_step_js() { ?>
 
 			// Show our group selector if we're awarding based on a specific group
 			if ( 'groups_join_specific_group' == trigger_type.val() ) {
-				trigger_type.siblings('.select-group-id').show();
+				trigger_type.siblings('.select-bp-group-id').show();
 			} else {
-				trigger_type.siblings('.select-group-id').hide();
+				trigger_type.siblings('.select-bp-group-id').hide();
 			}
 
+			if ( 'get_accepted_on_specific_private_group' == trigger_type.val() ) {
+				trigger_type.siblings('.select-bp-private-group-id').show();
+			} else {
+				trigger_type.siblings('.select-bp-private-group-id').hide();
+			}
 		});
 
 		// Trigger a change so we properly show/hide our community menues
@@ -179,7 +237,8 @@ function badgeos_bp_step_js() { ?>
 		$(document).on( 'update_step_data', function( event, step_details, step ) {
 			step_details.community_trigger = $('.select-community-trigger', step).val();
 			step_details.community_trigger_label = $('.select-community-trigger option', step).filter(':selected').text();
-			step_details.group_id = $('.select-group-id', step).val();
+			step_details.group_id = $('.select-bp-group-id', step).val();
+			step_details.private_group_id = $('.select-bp-private-group-id', step).val();
 		});
 
 	});

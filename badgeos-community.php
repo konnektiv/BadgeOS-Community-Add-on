@@ -5,7 +5,7 @@
  * Description: This BadgeOS add-on integrates BadgeOS features with BuddyPress and bbPress.
  * Tags: buddypress
  * Author: Credly
- * Version: 1.2.4
+ * Version: 1.2.5
  * Author URI: https://credly.com/
  * License: GNU AGPL
  * Text Domain: badgeos-community
@@ -34,7 +34,7 @@ class BadgeOS_Community {
 		// Define plugin constants
 		$this->basename       = plugin_basename( __FILE__ );
 		$this->directory_path = plugin_dir_path( __FILE__ );
-		$this->directory_url  = plugins_url( 'badgeos-community/' );
+		$this->directory_url  =  trailingslashit ( plugins_url ( '', __FILE__ ) );
 
 		// Load translations
 		load_plugin_textdomain( 'badgeos-community', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
@@ -47,28 +47,32 @@ class BadgeOS_Community {
 		add_action( 'plugins_loaded', array( $this, 'includes' ) );
 		add_action( 'bp_include', array( $this, 'bp_include' ) );
 		add_action( 'wp_print_scripts', array( $this, 'enqueue_scripts' ) );
-
+		add_action( 'wp_enqueue_scripts', [ $this, 'frontend_enqueue_scripts' ] );
 		// BuddyPress Action Hooks
 		$this->community_triggers = array(
 			__( 'Profile/Independent Actions', 'badgeos-community' ) => array(
-				'bp_core_activated_user'           => __( 'Activated Account', 'badgeos-community' ),
-				'xprofile_avatar_uploaded'         => __( 'Change Profile Avatar', 'badgeos-community' ),
-				'xprofile_updated_profile'         => __( 'Update Profile Information', 'badgeos-community' ),
+				'bp_core_activated_user'           => __( 'Activated Account', 'badgeos-community' ),//Working
+				'xprofile_avatar_uploaded'         => __( 'Change Profile Avatar', 'badgeos-community' ),//Working
+				'xprofile_updated_profile'         => __( 'Update Profile Information', 'badgeos-community' ),//Working
+				'bp_user_completed_profile'         => __( 'When the User Completes their Profile', 'badgeos-community' ),//Working
 			),
 			__( 'Social Actions', 'badgeos-community' ) => array(
-				'bp_activity_posted_update'        => __( 'Write an Activity Stream message', 'badgeos-community' ),
-				'bp_groups_posted_update'          => __( 'Write a Group Activity Stream message', 'badgeos-community' ),
-				'bp_activity_comment_posted'       => __( 'Reply to an item in an Activity Stream', 'badgeos-community' ),
-				'bp_activity_add_user_favorite'    => __( 'Favorite an Activity Stream item', 'badgeos-community' ),
-				'friends_friendship_requested'     => __( 'Send a Friendship Request', 'badgeos-community' ),
-				'friends_friendship_accepted'      => __( 'Accept a Friendship Request', 'badgeos-community' ),
-				'messages_message_sent'            => __( 'Send/Reply to a Private Message', 'badgeos-community' ),
+				'bp_activity_posted_update'        => __( 'Write an Activity Stream message', 'badgeos-community' ),//Working
+				'bp_groups_posted_update'          => __( 'Write a Group Activity Stream message', 'badgeos-community' ),//Working
+				'bp_activity_comment_posted'       => __( 'Reply to an item in an Activity Stream', 'badgeos-community' ),//Working
+				'bp_activity_add_user_favorite'    => __( 'Favorite an Activity Stream item', 'badgeos-community' ),//Working
+				'get_a_favorite_on_activity_stream'    => __( 'Get a favorite on an activity stream item', 'badgeos-community' ),//Working
+				'friends_friendship_requested'     => __( 'Send a Friendship Request', 'badgeos-community' ),//Working
+				'friends_friendship_accepted'      => __( 'Accept a Friendship Request', 'badgeos-community' ),//Working
+				'messages_message_sent'            => __( 'Send/Reply to a Private Message', 'badgeos-community' ),//Working
 			),
 			__( 'Group Actions', 'badgeos-community' ) => array(
-				'groups_group_create_complete'     => __( 'Create a Group', 'badgeos-community' ),
-				'groups_join_group'                => __( 'Join a Group', 'badgeos-community' ),
-				'groups_join_specific_group'       => __( 'Join a Specific Group', 'badgeos-community' ),
-				'groups_invite_user'               => __( 'Invite someone to Join a Group', 'badgeos-community' ),
+				'groups_group_create_complete'     => __( 'Create a Group', 'badgeos-community' ),//Working
+				'groups_join_group'                => __( 'Join a Group', 'badgeos-community' ),//Working
+				'groups_join_specific_group'       => __( 'Join a Specific Group', 'badgeos-community' ),//Working
+				'groups_invite_user'               => __( 'Invite someone to Join a Group', 'badgeos-community' ),//Working
+				'get_accepted_on_private_group'    => __( 'Get Accepted on a Private Group', 'badgeos-community' ),//Working
+				'get_accepted_on_specific_private_group'    => __( 'Get Accepted on a Specific Private Group', 'badgeos-community' ),//Working
 				'groups_promote_member'            => __( 'Promoted to Group Moderator/Administrator', 'badgeos-community' ),
 				'groups_promoted_member'           => __( 'Promote another Group Member to Moderator/Administrator', 'badgeos-community' ),
 			),
@@ -78,6 +82,21 @@ class BadgeOS_Community {
 			)
 		);
 	}
+
+	/**
+     * Enqueue frontend script
+     *
+     * @param $hook
+     * @return bool
+     */
+    public function frontend_enqueue_scripts( $hook ) {
+        
+        if( is_admin() ) {
+            return false;
+        }
+        
+        wp_enqueue_style( 'bos-community-style', $this->directory_url . 'css/bos-community.css', [] );
+    }
 
 	/**
 	 * Files to include for BadgeOS integration.
@@ -102,6 +121,9 @@ class BadgeOS_Community {
 		if ( $this->meets_requirements() ) {
 			if ( bp_is_active( 'xprofile' ) ) {
 				require_once( $this->directory_path . '/includes/bp-members.php' );
+				require_once( $this->directory_path . '/includes/bp-member-ranks.php' );
+				require_once( $this->directory_path . '/includes/bp-member-points.php' );
+				require_once( $this->directory_path . '/includes/settings.php' );
 			}
 			if ( bp_is_active( 'activity' ) ) {
 				require_once( $this->directory_path . '/includes/bp-activity.php' );

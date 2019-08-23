@@ -1,10 +1,10 @@
-﻿=== BadgeOS Community Add-on ===
-Contributors: learningtimes, badgeos, credly, wooninjas
+=== BadgeOS Community Add-on ===
+Contributors: learningtimes, badgeos, credly, wooninjas, farooqabdullah
 Donate link: http://badgeos.org/contribute/donate/
 Tags: badge, badges, openbadges, credly, OBI, mozilla, open badges, achievement, award, reward, engagement, submission, nomination, buddypress, community, API, open credit, credit, bbpress, plugin
-Requires at least: WordPress 3.6.0, BuddyPress 1.7.0 & BadgeOS 1.4.0
-Tested up to: 4.3
-Stable tag: 1.2.4
+Requires at least: WordPress 4.0, BuddyPress 4.4.0 & BadgeOS 3.0
+Tested up to: 5.2.2
+Stable tag: 1.2.5
 License: GNU AGPLv3
 License URI: http://www.gnu.org/licenses/agpl-3.0.html
 
@@ -164,6 +164,21 @@ Thanks for asking!  Please do share back code modifications or enhancements you 
 
 
 == Changelog ==
+
+= 1.2.5 =
+* New: Displayed BadgeOS ranks on profile page
+* New: Displayed BadgeOS points on profile page
+* New: Added option to display badges and ranks progress map on buddypress profile
+* New: Added trigger "Get a favorite on an activity stream item": When a user gets a new favorite on an activity stream message.
+* New: Added trigger "Get accepted on a private group": When a user gets accepted on a private group.
+* New: Added trigger "Get accepted on a specific private group": When a user gets accepted on a specific private group.
+* New: Added trigger "when the user completes their profile": when user adds/complete all the profile fields
+* Fix: Activated account trigger issue
+* Fix: Change avatar trigger issue
+* Fix: update profile trigger issue
+* Fix: Number of time field issue with BadgeOS Community add-ons triggers
+* Fix: Join a group and Join specific group triggers conflict
+* Fix: Made the add-on compatible with the latest version of BadgeOS
 
 = 1.2.4 =
 * Fixed: PHP 7.1.8 Fatal Error: Uncaught Error: [] operator not supported for strings
