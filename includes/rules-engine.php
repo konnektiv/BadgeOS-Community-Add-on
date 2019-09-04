@@ -513,7 +513,7 @@ add_action( 'groups_accept_invite', 'badgeos_bp_do_specific_group_requested_invi
 /**
  * Fires when user make an item favorite.
  *
- * @since 1.2.5
+ * @since 1.2.6
  *
  * @param int       $user_id  ID of the user joining the group.
  * @param int       $group_id ID of the group being joined.
@@ -534,7 +534,7 @@ add_action( 'groups_membership_accepted', 'get_accepted_on_private_group_callbac
 /**
  * Fires when user make an item favorite.
  *
- * @since 1.2.5
+ * @since 1.2.6
  *
  * @param int       $user_id  ID of the user joining the group.
  * @param int       $group_id ID of the group being joined.
@@ -561,7 +561,7 @@ add_action( 'bp_activity_add_user_favorite', 'get_a_favorite_on_activity_stream_
 /**
  * Fires when user make an item favorite.
  *
- * @since 1.2.5
+ * @since 1.2.6
  *
  * @param int       $user_id  ID of the user joining the group.
  * @param int       $group_id ID of the group being joined.
@@ -592,7 +592,7 @@ add_action( 'xprofile_cover_image_uploaded', 'bp_user_completed_profile_callback
 /**
  * Decrease the number of times trigger when a community badge has been revoked..
  *
- * @since 1.2.5
+ * @since 1.2.6
  *
  * @param $user_id
  * @param $step_id

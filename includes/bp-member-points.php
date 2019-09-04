@@ -25,8 +25,13 @@ function badgeos_bp_member_points() {
  * @since 1.0.0
  */
 function badgeos_bp_member_points_content() {
-    $user_ID = get_current_user_id();
-	ob_start();
+
+    $user_ID = bp_displayed_user_id();
+    if( intval( $user_ID ) == 0 ) {
+        $user_ID = get_current_user_id();
+    }
+
+    ob_start();
 	?>
         <hr />
         <h2><?php _e( 'Earned Points', 'badgeos' ); ?></h2>

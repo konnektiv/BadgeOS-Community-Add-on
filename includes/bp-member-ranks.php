@@ -26,7 +26,11 @@ function badgeos_bp_member_ranks() {
  */
 function badgeos_bp_member_ranks_content() {
 
-    $user_id = get_current_user_id();
+    $user_id = bp_displayed_user_id();
+    if( intval( $user_id ) == 0 ) {
+        $user_id = get_current_user_id();
+    }
+
     $rank_types = badgeos_get_rank_types_slugs_detailed();
 	$can_manage = current_user_can( badgeos_get_manager_capability() );
 

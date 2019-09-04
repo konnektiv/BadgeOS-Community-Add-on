@@ -4,7 +4,7 @@ Donate link: http://badgeos.org/contribute/donate/
 Tags: badge, badges, openbadges, credly, OBI, mozilla, open badges, achievement, award, reward, engagement, submission, nomination, buddypress, community, API, open credit, credit, bbpress, plugin
 Requires at least: WordPress 4.0, BuddyPress 4.4.0 & BadgeOS 3.0
 Tested up to: 5.2.2
-Stable tag: 1.2.5
+Stable tag: 1.2.6
 License: GNU AGPLv3
 License URI: http://www.gnu.org/licenses/agpl-3.0.html
 
@@ -164,6 +164,9 @@ Thanks for asking!  Please do share back code modifications or enhancements you 
 
 
 == Changelog ==
+
+= 1.2.6
+* Fix: Replaced current user id with buddypress user id for points and rank tabs
 
 = 1.2.5 =
 * New: Displayed BadgeOS ranks on profile page
